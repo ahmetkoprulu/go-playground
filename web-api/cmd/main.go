@@ -2,22 +2,17 @@ package main
 
 import (
 	"github.com/ahmetkoprulu/go-playground/web-api/internal/data"
+	"github.com/ahmetkoprulu/go-playground/web-api/internal/middlewares"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		panic(err)
-	}
-
-	err = data.InitializeMongoDb()
-	if err != nil {
-		panic(err)
-	}
+	initEnv()
+	initDb()
 
 	r := gin.Default()
+	r.Use(middlewares.ErrorMiddleware())
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
@@ -25,4 +20,18 @@ func main() {
 	})
 
 	r.Run()
+}
+
+func initEnv() {
+	err := godotenv.Load("../.env")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func initDb() {
+	err := data.InitializeMongoDb()
+	if err != nil {
+		panic(err)
+	}
 }
