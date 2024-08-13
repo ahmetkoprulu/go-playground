@@ -1,14 +1,20 @@
 package main
 
 import (
+	"github.com/ahmetkoprulu/go-playground/web-api/internal/data"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load()
+	err := godotenv.Load("../.env")
 	if err != nil {
-		panic("Error loading .env file")
+		panic(err)
+	}
+
+	err = data.InitializeMongoDb()
+	if err != nil {
+		panic(err)
 	}
 
 	r := gin.Default()
