@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/ahmetkoprulu/go-playground/web-api/internal/data"
+	"github.com/ahmetkoprulu/go-playground/web-api/internal/data/repositories"
 	"github.com/ahmetkoprulu/go-playground/web-api/internal/middlewares"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -34,4 +35,6 @@ func initDb() {
 	if err != nil {
 		panic(err)
 	}
+
+	repositories.InitializeRepositoryContext()
 }

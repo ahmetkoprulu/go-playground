@@ -1,4 +1,4 @@
-package jwt
+package helpers
 
 import (
 	"os"
@@ -16,7 +16,7 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func GenerateToken(username string) (string, error) {
+func GenerateJwtToken(username string) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour) // Token expiration time
 	claims := &Claims{
 		Username: username,
@@ -34,7 +34,7 @@ func GenerateToken(username string) (string, error) {
 	return tokenString, nil
 }
 
-func ValidateToken(tokenString string) (*Claims, error) {
+func ValidateJwtToken(tokenString string) (*Claims, error) {
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return jwtSecret, nil

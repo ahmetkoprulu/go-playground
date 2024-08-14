@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	jwt "github.com/ahmetkoprulu/go-playground/web-api/internal/helpers"
+	"github.com/ahmetkoprulu/go-playground/web-api/internal/helpers"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +17,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		claims, err := jwt.ValidateToken(token)
+		claims, err := helpers.ValidateJwtToken(token)
 		if err != nil {
 			unauthorized(c, err.Error())
 			return

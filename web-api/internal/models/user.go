@@ -1,22 +1,18 @@
 package models
 
 type User struct {
-	Entity
-	Username string `bson:"username" json:"username"`
-	Email    string `bson:"email" json:"email"`
-	Password string `bson:"password" json:"password"`
+	Id       string `bson:"_id" json:"id"`
+	Username string `bson:"username" json:"username" binding:"required"`
+	Email    string `bson:"email" json:"email" binding:"required,email"`
+	Password string `bson:"password" json:"password" binding:"required"`
 }
 
-func (e *Entity) GetId() string {
+func (e *User) GetId() string {
 	return e.Id
 }
 
-func (e *Entity) SetId(id string) {
+func (e *User) SetId(id string) {
 	e.Id = id
-}
-
-type Entity struct {
-	Id string `bson:"_id" json:"_id"`
 }
 
 type IEntity interface {
