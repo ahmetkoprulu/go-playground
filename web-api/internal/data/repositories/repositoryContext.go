@@ -18,6 +18,7 @@ func InitializeRepositoryContext() {
 		panic(err)
 	}
 
+	RepoContext()
 	context.UserRepository = &UserRepository{DbContext: dbContext}
 }
 

@@ -48,9 +48,9 @@ func (ctx *MongoDbContext) Users() *MongoCollection[*models.User] {
 }
 
 // IDbCollection implementation
-func (col *MongoCollection[T]) Upsert(document models.IEntity) (models.IEntity, error) {
+func (col *MongoCollection[T]) Upsert(document T) (models.IEntity, error) {
 	if document.GetId() == "" {
-		document.SetId(primitive.NewObjectID().String())
+		document.SetId(primitive.NewObjectID().Hex())
 	}
 
 	_, err := col.InsertOne(context.Background(), document)
@@ -61,18 +61,18 @@ func (col *MongoCollection[T]) Upsert(document models.IEntity) (models.IEntity, 
 	return document, nil
 }
 
-func (col *MongoCollection[T]) FirstOrDefault(filter any) *T {
+func (col *MongoCollection[T]) FirstOrDefault(filter any) (T, error) {
 	var result T
 	err := col.FindOne(context.Background(), filter).Decode(&result)
 	if err != nil {
-		return nil
+		return result, err
 	}
 
-	return &result
+	return result, nil
 }
 
-func (col *MongoCollection[T]) Where(filter any) ([]*T, error) {
-	var result []*T
+func (col *MongoCollection[T]) Where(filter any) ([]T, error) {
+	var result []T
 	cursor, err := col.Find(context.Background(), filter)
 	cursor.All(context.Background(), &result)
 

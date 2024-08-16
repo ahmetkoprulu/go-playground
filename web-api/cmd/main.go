@@ -1,6 +1,9 @@
 package main
 
 import (
+	"os"
+
+	"github.com/ahmetkoprulu/go-playground/web-api/internal/controllers"
 	"github.com/ahmetkoprulu/go-playground/web-api/internal/data"
 	"github.com/ahmetkoprulu/go-playground/web-api/internal/data/repositories"
 	"github.com/ahmetkoprulu/go-playground/web-api/internal/middlewares"
@@ -12,15 +15,21 @@ func main() {
 	initEnv()
 	initDb()
 
+	var port = os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	r := gin.Default()
 	r.Use(middlewares.ErrorMiddleware())
+	controllers.SetupAccountRouter(r)
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
 
-	r.Run()
+	r.Run(":" + port)
 }
 
 func initEnv() {

@@ -4,6 +4,7 @@ import (
 	"github.com/ahmetkoprulu/go-playground/web-api/internal/data"
 	"github.com/ahmetkoprulu/go-playground/web-api/internal/helpers"
 	"github.com/ahmetkoprulu/go-playground/web-api/internal/models"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -12,7 +13,7 @@ type UserRepository struct {
 }
 
 func (repo *UserRepository) Register(username, email, password string) (*models.User, error) {
-	var id = primitive.NewObjectID().String()
+	var id = primitive.NewObjectID().Hex()
 	user := &models.User{
 		Id:       id,
 		Username: username,
@@ -24,7 +25,6 @@ func (repo *UserRepository) Register(username, email, password string) (*models.
 	return user, err
 }
 
-func (repo *UserRepository) GetByEmail(email string) *models.User {
-	// return repo.DbContext.Users().FirstOrDefault(bson.M{"email": email})
-	return nil
+func (repo *UserRepository) GetByEmail(email string) (*models.User, error) {
+	return repo.DbContext.Users().FirstOrDefault(bson.M{"email": email})
 }

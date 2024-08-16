@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(router *gin.Engine) {
+func SetupAccountRouter(router *gin.Engine) {
 	router.POST("/sign-in", signin)
 	router.POST("/sign-up", signup)
 
@@ -24,8 +24,8 @@ func signin(c *gin.Context) {
 	}
 
 	var repoContext = GetRepositoryContext()
-	var exist = repoContext.UserRepository.GetByEmail(model.Email)
-	if exist == nil {
+	var exist, existError = repoContext.UserRepository.GetByEmail(model.Email)
+	if existError == nil {
 		BadRequest(c, "Invalid credentials")
 		return
 	}
@@ -52,7 +52,7 @@ func signup(c *gin.Context) {
 	}
 
 	var repoContext = GetRepositoryContext()
-	var exist = repoContext.UserRepository.GetByEmail(model.Email)
+	var exist, _ = repoContext.UserRepository.GetByEmail(model.Email)
 	if exist != nil {
 		BadRequest(c, "The email is taken")
 		return
