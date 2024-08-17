@@ -104,7 +104,12 @@ func (db *MongoDbContext) Connect() error {
 		return err
 	}
 
-	db.Database = client.Database(connecionString)
+	var dbName = os.Getenv("DB_NAME")
+	if dbName == "" {
+		return errors.New("database name is not provided")
+	}
+
+	db.Database = client.Database(dbName)
 	return nil
 }
 

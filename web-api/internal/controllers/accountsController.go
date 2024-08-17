@@ -25,7 +25,7 @@ func signin(c *gin.Context) {
 
 	var repoContext = GetRepositoryContext()
 	var exist, existError = repoContext.UserRepository.GetByEmail(model.Email)
-	if existError == nil {
+	if existError != nil {
 		BadRequest(c, "Invalid credentials")
 		return
 	}
@@ -36,7 +36,7 @@ func signin(c *gin.Context) {
 		return
 	}
 
-	var token, err = helpers.GenerateJwtToken(exist.Username)
+	var token, err = helpers.GenerateJwtToken(exist.Id)
 	if err != nil {
 		InternalServerError(c, err.Error())
 		return
@@ -68,9 +68,22 @@ func signup(c *gin.Context) {
 }
 
 func getMe(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "getMe",
-	})
+	var userId = c.MustGet("userId").(string)
+	var repoContext = GetRepositoryContext()
+
+	user, err := repoContext.UserRepository.GetById(userId)
+	if err != nil {
+		NotFound(c, err.Error())
+		return
+	}
+
+	result, err := MapTo[UserProfile](*user)
+	if err != nil {
+		InternalServerError(c, err.Error())
+		return
+	}
+
+	Ok(c, result)
 }
 
 type SignInModel struct {
@@ -88,4 +101,9 @@ type AuthenticatedUser struct {
 	Username    string `json:"username"`
 	Email       string `json:"email"`
 	AccessToken string `json:"accessToken"`
+}
+
+type UserProfile struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
 }

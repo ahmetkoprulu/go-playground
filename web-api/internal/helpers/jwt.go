@@ -12,14 +12,14 @@ var (
 )
 
 type Claims struct {
-	Username string `json:"username"`
+	UserId string `json:"userId"`
 	jwt.StandardClaims
 }
 
-func GenerateJwtToken(username string) (string, error) {
+func GenerateJwtToken(userId string) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour) // Token expiration time
 	claims := &Claims{
-		Username: username,
+		UserId: userId,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},

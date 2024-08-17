@@ -25,6 +25,10 @@ func (repo *UserRepository) Register(username, email, password string) (*models.
 	return user, err
 }
 
+func (repo *UserRepository) GetById(id string) (*models.User, error) {
+	return repo.DbContext.Users().FirstOrDefault(bson.M{"_id": id})
+}
+
 func (repo *UserRepository) GetByEmail(email string) (*models.User, error) {
 	return repo.DbContext.Users().FirstOrDefault(bson.M{"email": email})
 }
