@@ -20,8 +20,10 @@ func InitializeRepositoryContext() {
 
 	RepoContext()
 	context.UserRepository = &UserRepository{DbContext: dbContext}
+	context.NotificationRepository = &NotificationRepository{DbContext: dbContext}
 }
 
 type RepositoryContext struct {
-	UserRepository *UserRepository
+	NotificationRepository *NotificationRepository
+	UserRepository         *UserRepository
 }

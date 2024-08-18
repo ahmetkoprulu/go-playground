@@ -13,22 +13,13 @@ import (
 
 func main() {
 	initEnv()
-	initDb()
-
 	var port = os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		panic("PORT is not set")
 	}
 
-	r := gin.Default()
-	r.Use(middlewares.ErrorMiddleware())
-	controllers.SetupAccountRouter(r)
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-
+	r := setupServer()
+	initDb()
 	r.Run(":" + port)
 }
 
@@ -46,4 +37,27 @@ func initDb() {
 	}
 
 	repositories.InitializeRepositoryContext()
+}
+
+func setupServer() *gin.Engine {
+	r := gin.Default()
+	setupMiddlewares(r)
+	setupControllers(r)
+
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
+
+	return r
+}
+
+func setupControllers(r *gin.Engine) {
+	controllers.SetupAccountRouter(r)
+	controllers.SetupNotificationRouter(r)
+}
+
+func setupMiddlewares(r *gin.Engine) {
+	r.Use(middlewares.ErrorMiddleware())
 }
