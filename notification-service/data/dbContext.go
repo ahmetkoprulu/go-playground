@@ -3,13 +3,10 @@ package data
 import (
 	"context"
 	"errors"
-	"math"
 	"os"
 	"time"
 
-	data_models "github.com/ahmetkoprulu/go-playground/web-api/internal/data/abstract"
-	"github.com/ahmetkoprulu/go-playground/web-api/internal/models"
-
+	"github.com/ahmetkoprulu/go-playground/notification-service/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -56,6 +53,18 @@ func (ctx *MongoDbContext) Notifications() *MongoCollection[*models.Notification
 	}
 }
 
+func (ctx *MongoDbContext) NotificationDeliveries() *MongoCollection[*models.NotificationDelivery] {
+	return &MongoCollection[*models.NotificationDelivery]{
+		ctx.Database.Collection("notificationDeliveries"),
+	}
+}
+
+func (ctx *MongoDbContext) NotificationRecipients() *MongoCollection[*models.NotificationRecipient] {
+	return &MongoCollection[*models.NotificationRecipient]{
+		ctx.Database.Collection("notificaitonRecipients"),
+	}
+}
+
 // IDbCollection implementation
 func (col *MongoCollection[T]) Upsert(document T) (models.IEntity, error) {
 	if document.GetId() == "" {
@@ -90,44 +99,6 @@ func (col *MongoCollection[T]) Where(filter any) ([]T, error) {
 	}
 
 	return result, nil
-}
-
-func (col *MongoCollection[T]) Paginate(filter any, page int, take int) (data_models.PagingModel[T], error) {
-	if filter == nil {
-		filter = bson.M{}
-	}
-
-	var result data_models.PagingModel[T]
-	skip := (page - 1) * take
-
-	pipeline := mongo.Pipeline{{{Key: "$match", Value: filter}}, {{Key: "$facet", Value: bson.D{{Key: "metadata", Value: bson.A{bson.D{{Key: "$count", Value: "total"}}}}, {Key: "data", Value: bson.A{bson.D{{Key: "$skip", Value: skip}}, bson.D{{Key: "$limit", Value: take}}}}}}}}
-	cursor, err := col.Aggregate(context.Background(), pipeline)
-	if err != nil {
-		return result, err
-	}
-
-	defer cursor.Close(context.Background())
-	var aggregationResult data_models.AggregateResult[T]
-	if err := cursor.All(context.Background(), &aggregationResult); err != nil {
-		return result, err
-	}
-
-	if len(aggregationResult) > 0 && len(aggregationResult[0].Metadata) > 0 {
-		result.TotalCount = aggregationResult[0].Metadata[0].Total
-	}
-
-	result.CurrentPage = page
-	result.Take = take
-	// ceil
-	result.TotalPage = int(math.Ceil(float64(result.TotalCount) / float64(take)))
-	result.Data = aggregationResult[0].Data
-
-	return result, nil
-}
-
-func (col *MongoCollection[T]) Delete(id string) error {
-	_, err := col.DeleteOne(context.Background(), bson.M{"_id": id})
-	return err
 }
 
 // IDbProvider implementation
@@ -168,4 +139,14 @@ func (db *MongoDbContext) Disconnect() {
 
 func (ctx *MongoDbContext) GetClient() any {
 	return ctx.Database.Client()
+}
+
+func (col *MongoCollection[T]) TryLock(key string) error {
+	// Any locking mechanism can be implemented here
+	return nil
+}
+
+func (col *MongoCollection[T]) ReleaseLock(key string) error {
+	// Any locking mechanism can be implemented here
+	return nil
 }

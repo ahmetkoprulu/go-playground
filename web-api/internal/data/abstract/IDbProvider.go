@@ -1,4 +1,4 @@
-package data
+package data_models
 
 type IDbCollection[TEntity any] interface {
 	Upsert(collection TEntity, document TEntity) (TEntity, error)
